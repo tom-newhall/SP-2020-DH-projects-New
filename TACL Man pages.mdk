@@ -1,0 +1,735 @@
+# TACL man pages
+
+############################################################################
+usage: tacl align [-h] [-v] [-m MINIMUM] [-t {cbeta,latin,pagel}]
+                  CORPUS OUTPUT RESULTS
+
+Generates an HTML report giving tables showing aligned sequences of text
+between each witness within each label and all of the witnesses in the other
+labels, within a set of results. This functionality is only appropriate for
+intersect results.
+
+positional arguments:
+  CORPUS                Path to corpus.
+  OUTPUT                Directory to output alignment files to.
+  RESULTS               Path to CSV results; use - for stdin.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Display debug information; multiple -v options
+                        increase the verbosity. (default: None)
+  -m MINIMUM, --minimum MINIMUM
+                        Minimum size of n-gram to base sequences around.
+                        (default: 20)
+  -t {cbeta,latin,pagel}, --tokenizer {cbeta,latin,pagel}
+                        Type of tokenizer to use. The "cbeta" tokenizer is
+                        suitable for the Chinese CBETA corpus (tokens are
+                        single characters or workaround clusters within square
+                        brackets). The "pagel" tokenizer is for use with the
+                        transliterated Tibetan corpus (tokens are sets of word
+                        characters plus some punctuation used to transliterate
+                        characters). (default: cbeta)
+
+Due to encoding issues, you may need to set the environment variable
+PYTHONIOENCODING to "utf-8".
+
+This function requires the Biopython suite of software to be installed. It is
+extremely slow and resource hungry when the overlap between two witnesses is
+very great.
+
+############################################################################
+usage: tacl catalogue [-h] [-v] [-l LABEL] CORPUS CATALOGUE
+
+Generate a catalogue file.
+
+positional arguments:
+  CORPUS                Path to corpus.
+  CATALOGUE             Path to catalogue file.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Display debug information; multiple -v options
+                        increase the verbosity. (default: None)
+  -l LABEL, --label LABEL
+                        Label to use for all works. (default: )
+
+This command is just a convenience for generating a base catalogue file to
+then be customised manually.
+############################################################################
+usage: tacl counts [-h] [-v] [-m] [-r RAM] [-t {cbeta,latin,pagel}]
+                   DATABASE CORPUS CATALOGUE
+
+List counts of n-grams in each labelled witness.
+
+positional arguments:
+  DATABASE              Path to database file.
+  CORPUS                Path to corpus.
+  CATALOGUE             Path to catalogue file.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Display debug information; multiple -v options
+                        increase the verbosity. (default: None)
+  -m, --memory          Use RAM for temporary database storage.
+                        
+                        This may cause an out of memory error, in which case
+                        run the command without this switch. (default: False)
+  -r RAM, --ram RAM     Number of gigabytes of RAM to use. (default: 3)
+  -t {cbeta,latin,pagel}, --tokenizer {cbeta,latin,pagel}
+                        Type of tokenizer to use. The "cbeta" tokenizer is
+                        suitable for the Chinese CBETA corpus (tokens are
+                        single characters or workaround clusters within square
+                        brackets). The "pagel" tokenizer is for use with the
+                        transliterated Tibetan corpus (tokens are sets of word
+                        characters plus some punctuation used to transliterate
+                        characters). (default: cbeta)
+
+Due to encoding issues, you may need to set the environment variable
+PYTHONIOENCODING to "utf-8".
+############################################################################
+usage: tacl diff [-h] [-a LABEL] [-v] [-m] [-r RAM] [-t {cbeta,latin,pagel}]
+                 DATABASE CORPUS CATALOGUE
+
+List n-grams unique to each sub-corpus (as defined by the labels in the
+specified catalogue file).
+
+positional arguments:
+  DATABASE              Path to database file.
+  CORPUS                Path to corpus.
+  CATALOGUE             Path to catalogue file.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -a LABEL, --asymmetric LABEL
+                        Label of sub-corpus to restrict results to. (default:
+                        None)
+  -v, --verbose         Display debug information; multiple -v options
+                        increase the verbosity. (default: None)
+  -m, --memory          Use RAM for temporary database storage.
+                        
+                        This may cause an out of memory error, in which case
+                        run the command without this switch. (default: False)
+  -r RAM, --ram RAM     Number of gigabytes of RAM to use. (default: 3)
+  -t {cbeta,latin,pagel}, --tokenizer {cbeta,latin,pagel}
+                        Type of tokenizer to use. The "cbeta" tokenizer is
+                        suitable for the Chinese CBETA corpus (tokens are
+                        single characters or workaround clusters within square
+                        brackets). The "pagel" tokenizer is for use with the
+                        transliterated Tibetan corpus (tokens are sets of word
+                        characters plus some punctuation used to transliterate
+                        characters). (default: cbeta)
+
+Many of the n-grams that are distinct to each sub-corpus are uninteresting -
+if a 2-gram is distinct, then so is every gram larger than 2 that contains
+that 2-gram. Therefore the results output by this command are filtered to keep
+only the most distinctive n-grams, according to the following rules (which
+apply within the context of a given witness):
+
+* If an n-gram is not composed of any (n-1)-grams found in the
+  results, it is kept.
+
+* If both of the (n-1)-grams that comprise an n-gram are found in
+  the results, that n-gram is kept.
+
+* Otherwise, the n-gram is removed from the results.
+
+examples:
+
+  Make a diff query against a CBETA corpus.
+    tacl diff cbeta2-10.db corpus/cbeta/ dhr-vs-rest.txt > output.csv
+
+  Make an asymmetrical diff query against a CBETA corpus.
+    tacl diff -a Dhr cbeta2-10.db corpus/cbeta/ dhr-vs-rest.txt > output.csv
+
+  Make a diff query against a Pagel corpus.
+    tacl diff -t pagel pagel1-7.db corpus/pagel/ by-author.txt > output.csv
+
+Due to encoding issues, you may need to set the environment variable
+PYTHONIOENCODING to "utf-8".
+############################################################################
+usage: tacl excise [-h] [-v] [-t {cbeta,latin,pagel}]
+                   NGRAMS REPLACEMENT OUTPUT CORPUS WORK [WORK ...]
+
+Output witness files for each specified work with all of the specified n-grams
+replaced with the supplied replacement text. The replacement is done for each
+n-gram in turn, in descending order of n-gram length.
+
+positional arguments:
+  NGRAMS                Path to file containing n-grams (one per line) to be
+                        replaced.
+  REPLACEMENT           Text to replace n-grams with. This should be one or
+                        more valid tokens.
+  OUTPUT                Path to directory to output transformed files to.
+  CORPUS                Path to corpus.
+  WORK                  Work whose witnesses will be transformed.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Display debug information; multiple -v options
+                        increase the verbosity.
+  -t {cbeta,latin,pagel}, --tokenizer {cbeta,latin,pagel}
+                        Type of tokenizer to use. The "cbeta" tokenizer is
+                        suitable for the Chinese CBETA corpus (tokens are
+                        single characters or workaround clusters within square
+                        brackets). The "pagel" tokenizer is for use with the
+                        transliterated Tibetan corpus (tokens are sets of word
+                        characters plus some punctuation used to transliterate
+                        characters).
+############################################################################
+usage: tacl highlight [-h] [-v] [-m NGRAMS] (-n NGRAMS | -r RESULTS)
+                      [-l LABEL] [-t {cbeta,latin,pagel}]
+                      CORPUS BASE_NAME OUTPUT
+
+Output an HTML report for each witness to a work, showing the text of that
+witness with supplied n-grams visually highlighted.
+
+positional arguments:
+  CORPUS                Path to corpus.
+  BASE_NAME             Name of work to display.
+  OUTPUT                Directory to output report to.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Display debug information; multiple -v options
+                        increase the verbosity. (default: None)
+  -m NGRAMS, --minus-ngrams NGRAMS
+                        Path to file containing n-grams (one per line) to
+                        remove highlighting from. This applies only when -n is
+                        used. (default: None)
+  -n NGRAMS, --ngrams NGRAMS
+                        Path to file containing n-grams (one per line) to
+                        highlight. This option may be specified multiple
+                        times; the n-grams in each file will be displayed in a
+                        distinct colour. (default: None)
+  -r RESULTS, --results RESULTS
+                        Path to CSV results; creates heatmap highlighting.
+                        (default: None)
+  -l LABEL, --label LABEL
+                        Label used to identify the n-grams from a file
+                        specified by -n/--ngrams. This option may be specified
+                        multiple times, and provided as many times as the
+                        -n/--ngrams option. (default: None)
+  -t {cbeta,latin,pagel}, --tokenizer {cbeta,latin,pagel}
+                        Type of tokenizer to use. The "cbeta" tokenizer is
+                        suitable for the Chinese CBETA corpus (tokens are
+                        single characters or workaround clusters within square
+                        brackets). The "pagel" tokenizer is for use with the
+                        transliterated Tibetan corpus (tokens are sets of word
+                        characters plus some punctuation used to transliterate
+                        characters). (default: cbeta)
+
+There are two possible outputs available, depending on whether the -n or -r
+option is specified.
+
+If n-grams are supplied via the -n/--ngrams option, the resulting HTML reports
+show the specified work's witness texts with those n-grams highlighted. Any
+n-grams that are specified via the -m/--minus-ngrams option will have had its
+constituent tokens unhighlighted. The -n/--ngrams option may be specified
+multiple times; each file's n-grams will be highlighted in a distinct colour.
+The -l/--labels option can be used with -n/--ngrams in order to provide labels
+for groups of n-grams. There must be as many instances of -l/--labels as there
+are of -n/--ngrams. The order of the labels matches the order of the n-grams
+files.
+
+If results are supplied via the -r/--results option, the resulting HTML
+reports contain an interactive heatmap of the results, allowing the user to
+select which witness' matches should be highlighted in the text. Multiple
+selections are possible, and the colour of the highlight of a token reflects
+how many witnesses have matches containing that token.
+
+examples:
+
+  tacl highlight -r intersect.csv corpus/stripped/ T0001 report_dir
+
+  tacl highlight -n author_markers.csv corpus/stripped/ T0001 report_dir
+
+  tacl highlight -n Dhr_markers.csv -n ZQ_markers.csv corpus/stripped/ -l Dharmaraksa -l "Zhi Qian" T0474 report_dir
+############################################################################
+usage: tacl intersect [-h] [-v] [-m] [-r RAM] [-t {cbeta,latin,pagel}]
+                      DATABASE CORPUS CATALOGUE
+
+List n-grams common to all sub-corpora (as defined by the labels in the
+specified catalogue file).
+
+positional arguments:
+  DATABASE              Path to database file.
+  CORPUS                Path to corpus.
+  CATALOGUE             Path to catalogue file.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Display debug information; multiple -v options
+                        increase the verbosity. (default: None)
+  -m, --memory          Use RAM for temporary database storage.
+                        
+                        This may cause an out of memory error, in which case
+                        run the command without this switch. (default: False)
+  -r RAM, --ram RAM     Number of gigabytes of RAM to use. (default: 3)
+  -t {cbeta,latin,pagel}, --tokenizer {cbeta,latin,pagel}
+                        Type of tokenizer to use. The "cbeta" tokenizer is
+                        suitable for the Chinese CBETA corpus (tokens are
+                        single characters or workaround clusters within square
+                        brackets). The "pagel" tokenizer is for use with the
+                        transliterated Tibetan corpus (tokens are sets of word
+                        characters plus some punctuation used to transliterate
+                        characters). (default: cbeta)
+
+examples:
+
+  Make an intersect query against a CBETA corpus.
+    tacl intersect cbeta2-10.db corpus/cbeta/ dhr-vs-rest.txt > output.csv
+
+  Make an intersect query against a Pagel corpus.
+    tacl intersect -t pagel pagel1-7.db corpus/pagel/ by-author.txt > output.csv
+
+Due to encoding issues, you may need to set the environment variable
+PYTHONIOENCODING to "utf-8".
+############################################################################
+usage: tacl lifetime [-h] [-t {cbeta,latin,pagel}] [-v]
+                     CATALOGUE RESULTS LABEL OUTPUT
+
+Generate a report on the lifetime of n-grams in a results file.
+
+positional arguments:
+  CATALOGUE             Path to catalogue file.
+  RESULTS               Path to a results file to report on.
+  LABEL                 Label to mark as the focus of the report.
+  OUTPUT                Directory to output report to.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -t {cbeta,latin,pagel}, --tokenizer {cbeta,latin,pagel}
+                        Type of tokenizer to use. The "cbeta" tokenizer is
+                        suitable for the Chinese CBETA corpus (tokens are
+                        single characters or workaround clusters within square
+                        brackets). The "pagel" tokenizer is for use with the
+                        transliterated Tibetan corpus (tokens are sets of word
+                        characters plus some punctuation used to transliterate
+                        characters). (default: cbeta)
+  -v, --verbose         Display debug information; multiple -v options
+                        increase the verbosity. (default: None)
+
+A lifetime report consists of:
+
+* an HTML table showing the disposition of each n-gram across the
+  ordered corpora (with texts and count ranges);
+
+* an HTML table showing, for each corpus, the n-grams that first
+  occurred, only occurred, and last occurred in that corpus; and
+
+* results files for each category (first occurred in, only
+  occurred in , last occurred in) for each corpus.
+
+This report may be generated from any results file, but is most usefully
+applied to the output of the lifetime script (in the tacl-extra package).
+
+The focus label is informative only, since often multiple lifetime reports
+will be generated, one per corpus, from the same master results file, but with
+specific filtering for the corpus in focus.
+############################################################################
+usage: tacl ngrams [-h] [-v] [-c CATALOGUE] [-m] [-r RAM]
+                   [-t {cbeta,latin,pagel}]
+                   DATABASE CORPUS MINIMUM MAXIMUM
+
+Generate n-grams from a corpus.
+
+positional arguments:
+  DATABASE              Path to database file.
+  CORPUS                Path to corpus.
+  MINIMUM               Minimum size of n-gram to generate (integer).
+  MAXIMUM               Maximum size of n-gram to generate (integer).
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Display debug information; multiple -v options
+                        increase the verbosity. (default: None)
+  -c CATALOGUE, --catalogue CATALOGUE
+                        Path to a catalogue file used to restrict which works
+                        in the corpus are added. (default: None)
+  -m, --memory          Use RAM for temporary database storage.
+                        
+                        This may cause an out of memory error, in which case
+                        run the command without this switch. (default: False)
+  -r RAM, --ram RAM     Number of gigabytes of RAM to use. (default: 3)
+  -t {cbeta,latin,pagel}, --tokenizer {cbeta,latin,pagel}
+                        Type of tokenizer to use. The "cbeta" tokenizer is
+                        suitable for the Chinese CBETA corpus (tokens are
+                        single characters or workaround clusters within square
+                        brackets). The "pagel" tokenizer is for use with the
+                        transliterated Tibetan corpus (tokens are sets of word
+                        characters plus some punctuation used to transliterate
+                        characters). (default: cbeta)
+
+This command can be safely interrupted and subsequently rerun; witnesses that
+have already had their n-grams added will be skipped.
+
+If new witnesses need to be added after a database was generated, this command
+can be run again. However, the speed at which n-grams from these new witnesses
+are added will be much less than to a new database, due to the existing
+indices.
+
+If a witness has changed since a database was generated, this command will not
+update the database. In this case, generate a new database or manipulate the
+existing dataase directly to remove the witness and its associated n-grams.
+
+examples:
+
+  Create a database of 2 to 10-grams from a CBETA corpus.
+    tacl ngrams cbeta2-10.db corpus/cbeta/ 2 10
+
+  Create a database of 1 to 7-grams from a Pagel corpus.
+    tacl ngrams -t pagel pagel1-7.db corpus/pagel/ 1 7
+
+  Create a database of 1 to 7-grams from a subset of the CBETA corpus.
+    tacl ngrams -c dhr-texts.txt cbeta-dhr1-7.db corpus/cbeta/ 1 7
+############################################################################
+usage: tacl prepare [-h] [-v] [-s SOURCE] INPUT OUTPUT
+
+Convert CBETA TEI XML files (which may have multiple files per work) into XML
+suitable for processing via the tacl strip command.
+
+positional arguments:
+  INPUT                 Directory containing XML files to prepare.
+  OUTPUT                Directory to output prepared files to.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Display debug information; multiple -v options
+                        increase the verbosity. (default: None)
+  -s SOURCE, --source SOURCE
+                        Source of TEI files. (default: cbeta-github)
+
+The TEI source options are:
+
+* cbeta-github: The CBETA TEI files as distributed on their GitHub repository
+  at https://github.com/cbeta-org/xml-p5.git.
+############################################################################
+usage: tacl results [-h] [-v] [-b CORPUS] [--max-be-count COUNT] [-e CORPUS]
+                    [--excise NGRAM] [-l LABEL] [--min-count COUNT]
+                    [--max-count COUNT] [--min-count-work COUNT]
+                    [--max-count-work COUNT] [--min-size SIZE]
+                    [--max-size SIZE] [--min-works COUNT] [--max-works COUNT]
+                    [--ngrams NGRAMS] [--reciprocal] [--reduce]
+                    [--relabel CATALOGUE] [--remove LABEL] [--sort]
+                    [-t {cbeta,latin,pagel}] [-z CORPUS] [--add-label-count]
+                    [--add-label-work-count] [--collapse-witnesses]
+                    [--group-by-ngram CATALOGUE] [--group-by-witness]
+                    RESULTS
+
+Modify a query results file by adding, removing or otherwise manipulating
+result rows. Outputs the new set of results.
+
+positional arguments:
+  RESULTS               Path to CSV results; use - for stdin.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Display debug information; multiple -v options
+                        increase the verbosity. (default: None)
+  -e CORPUS, --extend CORPUS
+                        Extend the results to list the highest size grams that
+                        also count as matches, going beyond the maximum size
+                        recorded in the database. This has no effect if the
+                        results contain only 1-grams. (default: None)
+  --excise NGRAM        Remove all results whose n-gram contains the supplied
+                        n-gram within it. (default: None)
+  -l LABEL, --label LABEL
+                        Label to restrict prune requirements to (default:
+                        None)
+  --min-count COUNT     Minimum total count per n-gram to include. (default:
+                        None)
+  --max-count COUNT     Maximum total count per n-gram to include. (default:
+                        None)
+  --min-count-work COUNT
+                        Minimum count per n-gram per work to include; if a
+                        single witness meets this criterion for an n-gram, all
+                        instances of that n-gram are kept. (default: None)
+  --max-count-work COUNT
+                        Maximum count per n-gram per work to include; if a
+                        single witness meets this criterion for an n-gram, all
+                        instances of that n-gram are kept. (default: None)
+  --min-size SIZE       Minimum size of n-grams to include. (default: None)
+  --max-size SIZE       Maximum size of n-grams to include. (default: None)
+  --min-works COUNT     Minimum count of works containing n-gram to include.
+                        (default: None)
+  --max-works COUNT     Maximum count of works containing n-gram to include.
+                        (default: None)
+  --ngrams NGRAMS       Path to file containing n-grams (one per line) to
+                        exclude. (default: None)
+  --reciprocal          Remove n-grams that are not attested by at least one
+                        work in each labelled set of works. This can be useful
+                        after reducing a set of intersection results.
+                        (default: False)
+  --reduce              Remove n-grams that are contained in larger n-grams.
+                        (default: False)
+  --relabel CATALOGUE   Relabel results according to the supplied catalogue.
+                        (default: None)
+  --remove LABEL        Remove labelled results. (default: None)
+  --sort                Sort the results. (default: False)
+  -t {cbeta,latin,pagel}, --tokenizer {cbeta,latin,pagel}
+                        Type of tokenizer to use. The "cbeta" tokenizer is
+                        suitable for the Chinese CBETA corpus (tokens are
+                        single characters or workaround clusters within square
+                        brackets). The "pagel" tokenizer is for use with the
+                        transliterated Tibetan corpus (tokens are sets of word
+                        characters plus some punctuation used to transliterate
+                        characters). (default: cbeta)
+  -z CORPUS, --zero-fill CORPUS
+                        Add rows with a count of 0 for each n-gram in each
+                        witness of a work that has at least one witness
+                        bearing that n-gram. (default: None)
+
+bifurcated extend:
+  -b CORPUS, --bifurcated-extend CORPUS
+                        Extend results to bifurcation points. Generates
+                        results containing those n-grams, derived from the
+                        original n-grams, that have a label count higher than
+                        their containing (n+1)-grams, or that have a label
+                        count of one and the constituent (n-1)-grams have a
+                        higher label count. (default: None)
+  --max-be-count COUNT  Maximum size of n-gram to extend to (default: None)
+
+format changing arguments:
+  These arguments change the format of the results, making them potentially
+  unsafe to use other operations on.
+
+  --add-label-count     Output the supplied results with an additional column,
+                        "label count", giving the total count for each n-gram
+                        within the label. For each work, the maximum count
+                        across all of that work's witnesses is used in the
+                        sum. (default: False)
+  --add-label-work-count
+                        Output the supplied results with an additional column,
+                        "label work count", giving the total count of works
+                        that contain the n-gram within the label. For each
+                        work, any number of positive counts across all of that
+                        work's witnesses is counted as one in the sum.
+                        (default: False)
+  --collapse-witnesses  Collapse result rows for multiple witnesses having the
+                        same count for an n-gram. Instead of the "siglum"
+                        column, all of the witnesses (per work) with the same
+                        n-gram count are listed, comma separated, in the
+                        "sigla" column. (default: False)
+  --group-by-ngram CATALOGUE
+                        Group results by n-gram, providing summary information
+                        of the works each n-gram appears in. Results are
+                        sorted by n-gram and then order of occurrence of the
+                        label in the supplied catalogue. (default: None)
+  --group-by-witness    Group results by witness, providing summary
+                        information of which n-grams appear in each witness.
+                        (default: False)
+
+If more than one modifier is specified, they are applied in the following
+order: --extend, --bifurcated-extend, --reduce, --reciprocal, --excise,
+--zero-fill, --ngrams, --min/max-works, --min/max-size, --min/max-count,
+--min/max-count-work, --remove, --relabel, --sort. All of the options that
+modify the format are performed at the end, and only one should be specified.
+
+It is important to be careful with the use of --reduce. Coupled with --max-
+size, many results may be discarded without trace (since the reduce occurs
+first). Note too that performing "reduce" on a set of results more than once
+will make the results inaccurate!
+
+--extend applies before --reduce because it may generate results that are also
+amenable to reduction.
+
+--extend applies before --remove because it depends on there being at least
+two labels in the results in order to give correct results.
+
+--min-count and --max-count set the range within which the total count of each
+n-gram, across all works, must fall. For each work, its count is taken as the
+highest count among its witnesses.
+
+--min-works and --max-works count works rather than witnesses.
+
+If both --min-count-work and --max-count-work are specified, only those
+n-grams are kept that have at least one witness whose count falls within that
+range.
+
+-l/--label causes --min/max-count, --min/max-count-work, and --min/max-works
+to have their requirements apply within that labelled subset of results. All
+n-grams, both within the subset and outside it, that meet the criteria are
+kept, while all other n-grams are removed. Note that when applied to diff
+results, no n-grams outside those in the labelled subset will be kept.
+
+--relabel sets the label for each result row to the label for that row's work
+as specified in the supplied catalogue. If the work is not labelled in the
+catalogue, the label in the results is not changed.
+
+Since this command outputs a valid results file (except when using one of
+those options listed as changing the format), its output can be used as input
+for a subsequent tacl results command. To chain commands together without
+creating an intermediate file, pipe the commands together and use - instead of
+a filename, as:
+
+    tacl results --recriprocal results.csv | tacl results --reduce -
+
+examples:
+
+  Extend CBETA results and set a minimum total count.
+    tacl results -e corpus/cbeta/ --min-count 9 output.csv > mod-output.csv
+
+  Zero-fill CBETA results.
+    tacl results -z corpus/cbeta/ output.csv > mod-output.csv
+
+  Reduce Pagel results.
+    tacl results --reduce -t pagel output.csv > mod-output.csv
+
+Due to encoding issues, you may need to set the environment variable
+PYTHONIOENCODING to "utf-8".
+############################################################################
+usage: tacl sdiff [-h] [-v] [-t {cbeta,latin,pagel}] [-m] [-r RAM] -d DATABASE
+                  -l LABELS [LABELS ...] -s RESULTS [RESULTS ...]
+
+List n-grams unique to each set of results (as defined by the specified
+results files).
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Display debug information; multiple -v options
+                        increase the verbosity. (default: None)
+  -t {cbeta,latin,pagel}, --tokenizer {cbeta,latin,pagel}
+                        Type of tokenizer to use. The "cbeta" tokenizer is
+                        suitable for the Chinese CBETA corpus (tokens are
+                        single characters or workaround clusters within square
+                        brackets). The "pagel" tokenizer is for use with the
+                        transliterated Tibetan corpus (tokens are sets of word
+                        characters plus some punctuation used to transliterate
+                        characters). (default: cbeta)
+  -m, --memory          Use RAM for temporary database storage.
+                        
+                        This may cause an out of memory error, in which case
+                        run the command without this switch. (default: False)
+  -r RAM, --ram RAM     Number of gigabytes of RAM to use. (default: 3)
+  -d DATABASE, --db DATABASE
+                        Path to database file. (default: None)
+  -l LABELS [LABELS ...], --labels LABELS [LABELS ...]
+                        Labels to be assigned in order to the supplied
+                        results. (default: None)
+  -s RESULTS [RESULTS ...], --supplied RESULTS [RESULTS ...]
+                        Paths to results files to be used in the query.
+                        (default: None)
+
+The number of labels supplied must match the number of results files. The
+first label is assigned to all results in the first results file, the second
+label to all results in the second results file, etc. The labels specified in
+the results files are replaced with the supplied labels in the output.
+
+examples:
+
+    tacl sdiff -d cbeta2-10.db -l A B -s results1.csv results2.csv > output.csv
+############################################################################
+usage: tacl search [-h] [-v] [-m] [-r RAM] [-t {cbeta,latin,pagel}]
+                   DATABASE CORPUS CATALOGUE [NGRAMS [NGRAMS ...]]
+
+Output results of searching the database for the supplied n-grams that occur
+within labelled witnesses.
+
+positional arguments:
+  DATABASE              Path to database file.
+  CORPUS                Path to corpus.
+  CATALOGUE             Path to catalogue file.
+  NGRAMS                Path to file containing list of n-grams to search for,
+                        with one n-gram per line. (default: None)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Display debug information; multiple -v options
+                        increase the verbosity. (default: None)
+  -m, --memory          Use RAM for temporary database storage.
+                        
+                        This may cause an out of memory error, in which case
+                        run the command without this switch. (default: False)
+  -r RAM, --ram RAM     Number of gigabytes of RAM to use. (default: 3)
+  -t {cbeta,latin,pagel}, --tokenizer {cbeta,latin,pagel}
+                        Type of tokenizer to use. The "cbeta" tokenizer is
+                        suitable for the Chinese CBETA corpus (tokens are
+                        single characters or workaround clusters within square
+                        brackets). The "pagel" tokenizer is for use with the
+                        transliterated Tibetan corpus (tokens are sets of word
+                        characters plus some punctuation used to transliterate
+                        characters). (default: cbeta)
+
+If multiple paths to files containing n-grams are given, the combined set of
+n-grams from all files will be searched for.
+
+If no path is given, the results will include all n-grams found for all of the
+labelled witnesses in the catalogue.
+
+Due to encoding issues, you may need to set the environment variable
+PYTHONIOENCODING to "utf-8".
+############################################################################
+usage: tacl sintersect [-h] [-v] [-m] [-r RAM] -d DATABASE -l LABELS
+                       [LABELS ...] -s RESULTS [RESULTS ...]
+
+List n-grams common to all sets of results (as defined by the specified
+results files).
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Display debug information; multiple -v options
+                        increase the verbosity. (default: None)
+  -m, --memory          Use RAM for temporary database storage.
+                        
+                        This may cause an out of memory error, in which case
+                        run the command without this switch. (default: False)
+  -r RAM, --ram RAM     Number of gigabytes of RAM to use. (default: 3)
+  -d DATABASE, --db DATABASE
+                        Path to database file. (default: None)
+  -l LABELS [LABELS ...], --labels LABELS [LABELS ...]
+                        Labels to be assigned in order to the supplied
+                        results. (default: None)
+  -s RESULTS [RESULTS ...], --supplied RESULTS [RESULTS ...]
+                        Paths to results files to be used in the query.
+                        (default: None)
+
+The number of labels supplied must match the number of results files. The
+first label is assigned to all results in the first results file, the second
+label to all results in the second results file, etc. The labels specified in
+the results files are replaced with the supplied labels in the output.
+
+examples:
+
+    tacl sintersect -d cbeta2-10.db -l A B -s results1.csv results2.csv > output.csv
+############################################################################
+usage: tacl stats [-h] [-v] [-t {cbeta,latin,pagel}] CORPUS RESULTS
+
+Generate summary statistics for a set of results. This gives, for each
+witness, the total number of tokens and the count of matching tokens, and
+derived from these the percentage of the witness that is encompassed by the
+matches.
+
+positional arguments:
+  CORPUS                Path to corpus.
+  RESULTS               Path to CSV results.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Display debug information; multiple -v options
+                        increase the verbosity. (default: None)
+  -t {cbeta,latin,pagel}, --tokenizer {cbeta,latin,pagel}
+                        Type of tokenizer to use. The "cbeta" tokenizer is
+                        suitable for the Chinese CBETA corpus (tokens are
+                        single characters or workaround clusters within square
+                        brackets). The "pagel" tokenizer is for use with the
+                        transliterated Tibetan corpus (tokens are sets of word
+                        characters plus some punctuation used to transliterate
+                        characters). (default: cbeta)
+############################################################################
+usage: tacl strip [-h] [-v] INPUT OUTPUT
+
+Preprocess a corpus by stripping unwanted material from each file, creating a
+plain text file for each attested witness.
+
+positional arguments:
+  INPUT          Directory containing files to strip.
+  OUTPUT         Directory to output stripped files to.
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -v, --verbose  Display debug information; multiple -v options increase the
+                 verbosity. (default: None)
+
+This command operates on files in an augmented TEI XML format that is quite
+close to that used in the CBETA GitHub files.
+​

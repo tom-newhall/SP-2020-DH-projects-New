@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='utf-8'?>
+<?xml-model href="http://www.tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>丁福保 - 佛學大辭典 : Ding Fubao's Dictionary of Buddhist Studies</title>
+      </titleStmt>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <entry>
+        <form>戒波羅蜜教主</form>
+        <sense>
+          <usg type="dom">雜語</usg>
+          <def>說梵網菩薩戒之盧舍那佛也。是為坐千葉蓮花臺之報身佛。梵網經下曰：「我今盧舍那，方坐蓮花臺周匝千花上。」</def>
+        </sense>
+      </entry>
+      <entry>
+        <form>十六大藥叉將</form>
+        <sense>
+          <usg type="dom">名數</usg>
+          <def>一達哩底囉瑟吒大將。二禁毘嚕大將。三嚩日嚕大將。四迦尾嚕大將。五彌覩吒大將。六哆怒毘大將。七阿儞嚕大將。八娑儞嚕大將。九印捺嚕大將。十波夷嚕大將。十一摩尾嚕大將。十二嬌尾嚕大將。十三真特嚕大將。十四嚩吒徒嚕大將。十五尾迦嚕大將。十六俱吠嚕大將。如是十六大將各有七千眷屬。見陀羅尼集經三。</def>
+        </sense>
+      </entry>
+      <entry>
+        <form>慧學</form>
+        <sense>
+          <usg type="dom">術語</usg>
+          <def>三學之一，觀達真理為慧，進習為學。斷惑證理，慧之作用也，為發此慧而進修，謂之慧學。對配於三藏，則為阿毘達磨藏之所詮。阿毘達磨藏者，詮顯此慧學之法藏也。大乘義章十曰：「觀達稱慧，進習為學。」對法論十一曰：「開示慧學是阿毘達磨。」</def>
+        </sense>
+      </entry>
+    </body>
+  </text>
+</TEI>
