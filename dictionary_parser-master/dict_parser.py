@@ -52,8 +52,7 @@ vocab = [v for v in vocab if v != ""]
 
 # compile the regular expression to match any given vocabulary word, capturing 
 # the result
-my_regex = re.compile("("+("|").join(vocab)+")")
-
+my_regex = re.compile("("+("|").join(vocab)+")") # zaあAaaああああああああああああああああああああああああ - added by my daughter
 # start a timer (not necessary, just for curiosity's sake)
 st=time.time()
 
